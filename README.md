@@ -1,13 +1,17 @@
 # goenvy
-A simple package to deal with ENVs in golang
+A simple, lightweight, package to deal with ENVs in golang for those who prefere clear JSON over YAML, ENV etc
 
-## Install
+goenv takes a JSON file and changes it into environment variables. Those last for the time of your project running
+
+Ideal for switching between dev/test/prod variables
+
+## Installation
 simply use go package manager in the project folder
-```
-go get https://github.com/ren70n/goenvy
+```bash
+go get github.com/ren70n/goenvy
 ```
 
-## Sample code
+## Usage
 ```go
 package main
 
@@ -25,3 +29,5 @@ func main(){
   goenvy.PushToOSEnvs(envMap)
 }
 ```
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
