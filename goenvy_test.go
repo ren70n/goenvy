@@ -7,13 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Getenvs(t *testing.T) {
-	// want := "Goenvy"
-	// if got := Goenvy("test.env.json"); got != want {
-	// t.Errorf("Goenvy() = %q, want %q", got, want)
-	// }
-}
-
 func Test_toPaths(t *testing.T) {
 	raw := `
 {
