@@ -19,12 +19,13 @@ Ideal for switching between dev/test/prod variables
 	"KEY":["arr1","arr2"]
 }
 ```
+and result is:
 ```bash
 KEY_0=arr1
 KEY_1=arr2
 ```
 
-## Awailable functions
+## Available functions
 
 ## Installation
 simply use go package manager in the project folder
