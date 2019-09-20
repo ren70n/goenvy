@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 )
 
+// GetEnvsFromJSON ...
 func GetEnvsFromJSON(file string) (map[string]string, error) {
 	data, err := readJSON(file)
 
@@ -37,39 +39,14 @@ func parseJSON(data []byte) (map[string]string, error) {
 
 	var content interface{}
 
-	err := json.Unmarshal(data, &content)
-
-	if err != nil {
+	if err := json.Unmarshal(data, &content); err != nil {
 		return nil, err
 	}
-
-	jsonmap := content.(map[string]interface{})
-
-	readTree("", jsonmap, m)
-
+	toPaths(content, &m, "_", nil)
 	return m, nil
 }
 
-func readTree(key string,
-	leaf map[string]interface{},
-	m map[string]string) {
-
-	for k, v := range leaf {
-		switch v.(type) {
-		case string:
-			mkey := fmt.Sprintf("%s_%s", key, k)
-			mkey = strings.ToUpper(mkey)
-
-			m[mkey] = v.(string)
-
-		case interface{}:
-
-			jmm := v.(map[string]interface{})
-			readTree(key+k, jmm, m)
-		}
-	}
-}
-
+// PushToOSEnvs ...
 func PushToOSEnvs(envsmap map[string]string) {
 	for k, v := range envsmap {
 		err := os.Setenv(k, v)
@@ -78,4 +55,38 @@ func PushToOSEnvs(envsmap map[string]string) {
 			// return
 		}
 	}
+}
+
+// toPaths implements DFS over arbitrary json structure and flattens results
+// to PATH-value pairs
+// Path parts are separated by delimiter
+func toPaths(in interface{}, res *map[string]string, delim string, path []string) {
+	if path == nil {
+		path = []string{}
+	}
+	switch t := in.(type) {
+	case []interface{}:
+		for i, v := range t {
+			toPaths(v, res, delim, copyAppend(path, strconv.Itoa(i)))
+		}
+	case map[string]interface{}:
+		for k, v := range t {
+			toPaths(v, res, delim, copyAppend(path, k))
+		}
+	default:
+		(*res)[strings.ToUpper(strings.Join(path, delim))] = fmt.Sprint(t)
+	}
+}
+
+// copyAppend is a utility func for toPaths
+// create a slice one longer than src
+// copy src to dst
+// set elem at tail
+// return
+func copyAppend(src []string, elem string) (dst []string) {
+	l := len(src)
+	dst = make([]string, l+1)
+	copy(dst, src)
+	dst[l] = elem
+	return
 }
