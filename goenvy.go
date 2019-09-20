@@ -4,19 +4,27 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-// GetEnvsFromJSON ...
+// GetEnvsFromJSON parses the JSON and returns map of KEYs/values
+// default delimiter for KEY naming is "_"
 func GetEnvsFromJSON(file string) (map[string]string, error) {
+	return GetEnvsFromJSONDelim(file, "_")
+}
+
+// GetEnvsFromJSON parses the JSON and returns map of KEYs/values
+// it is possible to define delimiter separating parts of the KEY name
+func GetEnvsFromJSONDelim(file string, delim string) (map[string]string, error) {
 	data, err := readJSON(file)
 
 	if err != nil {
 		return nil, err
 	}
-	pdata, err := parseJSON(data)
+	pdata, err := parseJSON(data, delim)
 	if err != nil {
 		return nil, err
 	}
@@ -24,6 +32,8 @@ func GetEnvsFromJSON(file string) (map[string]string, error) {
 	return pdata, nil
 }
 
+// readJSON is a simplest possible file reader
+// it takes whatever is passed and returns byte array (or error)
 func readJSON(file string) ([]byte, error) {
 	fileBytes, err := ioutil.ReadFile(file)
 
@@ -34,7 +44,9 @@ func readJSON(file string) ([]byte, error) {
 	return fileBytes, nil
 }
 
-func parseJSON(data []byte) (map[string]string, error) {
+// parseJSON takes a data array (read from JSON file) and returns
+// map of environmental variables. Map is an input for PushToOSEnvs
+func parseJSON(data []byte, delim string) (map[string]string, error) {
 	m := make(map[string]string)
 
 	var content interface{}
@@ -42,17 +54,16 @@ func parseJSON(data []byte) (map[string]string, error) {
 	if err := json.Unmarshal(data, &content); err != nil {
 		return nil, err
 	}
-	toPaths(content, &m, "_", nil)
+	toPaths(content, &m, delim, nil)
 	return m, nil
 }
 
-// PushToOSEnvs ...
+// PushToOSEnvs sets environmental variables passed in map in OS
 func PushToOSEnvs(envsmap map[string]string) {
 	for k, v := range envsmap {
 		err := os.Setenv(k, v)
 		if err != nil {
-			fmt.Println(err)
-			// return
+			log.Println(err)
 		}
 	}
 }

@@ -1,9 +1,30 @@
 # goenvy
 A simple, lightweight, package to deal with ENVs in golang for those who prefere clear JSON over YAML, ENV etc
 
-goenv takes a JSON file and changes it into environment variables. Those last for the time of your project running
-
 Ideal for switching between dev/test/prod variables
+
+## How it works
+
+1. goenvy takes a JSON file and transforms its content into environment variables. 
+```json
+{
+	"KEY":"value"
+}
+```
+2. Those last for the time of your project running
+3. All the keys are automatically transformed to UPPERCASE so you don't have to bother
+4. In case of arrays key is given the index of array element:
+```json
+{
+	"KEY":["arr1","arr2"]
+}
+```
+```bash
+KEY_0=arr1
+KEY_1=arr2
+```
+
+## Awailable functions
 
 ## Installation
 simply use go package manager in the project folder
@@ -29,5 +50,6 @@ func main(){
   goenvy.PushToOSEnvs(envMap)
 }
 ```
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
